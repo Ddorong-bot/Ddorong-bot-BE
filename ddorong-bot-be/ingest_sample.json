@@ -1,0 +1,30 @@
+﻿{
+  "articles": [
+    {
+      "sourceType": "API",
+      "contentHash": "1111111111111111111111111111111111111111111111111111111111111111",
+      "externalId": "asahi-20251219-0001",
+      "sourceName": "아사히 신문",
+      "categoryCode": "world",
+      "url": "https://example.com/jp/asahi/0001",
+      "title": "Japan policy update",
+      "content": "This is the raw article body for test ingestion.",
+      "author": "Asahi Reporter",
+      "publishedAt": "2025-12-19T00:10:00+09:00",
+      "fetchedAt": "2025-12-19T00:12:00+09:00"
+    },
+    {
+      "sourceType": "API",
+      "contentHash": "2222222222222222222222222222222222222222222222222222222222222222",
+      "externalId": "xinhua-20251219-0001",
+      "sourceName": "신화사",
+      "categoryCode": "business",
+      "url": "https://example.com/cn/xinhua/0001",
+      "title": "China economy headline",
+      "content": "Raw content for second article.",
+      "author": "Xinhua",
+      "publishedAt": "2025-12-19T11:00:00+09:00",
+      "fetchedAt": "2025-12-19T12:00:00+09:00"
+    }
+  ]
+}
