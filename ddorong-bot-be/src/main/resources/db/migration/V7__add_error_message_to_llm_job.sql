@@ -1,0 +1,2 @@
+ALTER TABLE llm_job
+ADD COLUMN IF NOT EXISTS error_message TEXT;

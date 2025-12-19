@@ -30,4 +30,16 @@ public class NewsSource {
     public void setType(String type) { this.type = type; }
     public void setBaseUrl(String baseUrl) { this.baseUrl = baseUrl; }
     public void setCountryCode(String countryCode) { this.countryCode = countryCode; }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    public String getBaseUrl() {
+        return this.baseUrl;
+    }
 }

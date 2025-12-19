@@ -83,4 +83,37 @@ public class NewsArticle {
 
     public UUID getId() { return id; }
     public String getContentHash() { return contentHash; }
+
+    public NewsSource getSource() {
+        return this.source;
+    }
+
+    public NewsCategory getCategory() {
+        return this.category;
+    }
+
+    public String getUrl() {
+        return this.url;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public String getContent() {
+        return this.content;
+    }
+
+    public java.time.OffsetDateTime getPublishedAt() {
+        return this.publishedAt;
+    }
+
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 }
