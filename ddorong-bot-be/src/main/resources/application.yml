@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/newsbot
-    username: app
-    password: app_password
+    url: jdbc:postgresql://localhost:5432/ddorong
+    username: ddorong
+    password: ddorong
 
   jpa:
     hibernate:
