@@ -22,3 +22,12 @@ management:
     web:
       exposure:
         include: health,info
+
+# python:
+#   executable: python
+#   project:
+#     path: D:/AIFFEL/Ddorong_bot/python-collector
+#   collector:
+#     scripts: rss_collector.py,api_collector.py,web_scraper.py
+#   translator:
+#     scripts: translator.py,summarizer.py
