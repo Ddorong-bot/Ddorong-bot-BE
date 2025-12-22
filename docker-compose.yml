@@ -1,15 +1,42 @@
+version: "3.8"
+
 services:
-  postgres:
+  db:
     image: postgres:16
-    container_name: ddorong-postgres
+    container_name: ddorong-db
+    restart: always
     environment:
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app_password
-      POSTGRES_DB: newsbot
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ddorong
+      POSTGRES_USER: ddorong
+      POSTGRES_PASSWORD: ddorong
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - ddorong-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ddorong"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: jiyeonl/ddorong-bot-be:latest
+    container_name: ddorong-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/ddorong
+      SPRING_DATASOURCE_USERNAME: ddorong
+      SPRING_DATASOURCE_PASSWORD: ddorong
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    ports:
+      - "8080:8080"
+    networks:
+      - ddorong-net
 
 volumes:
-  pgdata:
+  postgres-data:
+
+networks:
+  ddorong-net:
