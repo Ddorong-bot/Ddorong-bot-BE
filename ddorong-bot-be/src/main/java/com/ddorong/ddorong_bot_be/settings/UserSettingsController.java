@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ddorong.ddorong_bot_be.settings.dto.AddChannelRequest;
 import com.ddorong.ddorong_bot_be.settings.dto.ChannelDto;
+import com.ddorong.ddorong_bot_be.settings.dto.ScheduleDto;
 import com.ddorong.ddorong_bot_be.settings.dto.TestMessageResponse;
 import com.ddorong.ddorong_bot_be.settings.dto.UpdateChannelsRequest;
 import com.ddorong.ddorong_bot_be.settings.dto.UpdateInterestsRequest;
 import com.ddorong.ddorong_bot_be.settings.dto.UpdatePreferencesRequest;
+import com.ddorong.ddorong_bot_be.settings.dto.UpdateScheduleRequest;
 import com.ddorong.ddorong_bot_be.settings.dto.UserListResponse;
 import com.ddorong.ddorong_bot_be.settings.dto.UserSettingsResponse;
 
@@ -113,5 +115,13 @@ public class UserSettingsController {
             @RequestBody UpdateInterestsRequest request) {
         userSettingsService.updateInterests(userCode, request);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{userCode}/schedule")
+    public ResponseEntity<ScheduleDto> updateSchedule(
+            @PathVariable String userCode,
+            @RequestBody UpdateScheduleRequest request) {
+        ScheduleDto schedule = userSettingsService.updateSchedule(userCode, request);
+        return ResponseEntity.ok(schedule);
     }
 }

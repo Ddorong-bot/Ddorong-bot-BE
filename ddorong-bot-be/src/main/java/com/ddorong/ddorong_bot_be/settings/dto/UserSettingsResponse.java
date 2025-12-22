@@ -10,6 +10,7 @@ public record UserSettingsResponse(
         String timezone,
         PreferenceDto preference,
         List<InterestDto> interests,
-        List<ChannelDto> channels
+        List<ChannelDto> channels,
+        ScheduleDto schedule
 ) {
 }

@@ -1,5 +1,8 @@
 package com.ddorong.ddorong_bot_be.settings;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,16 +14,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.ddorong.ddorong_bot_be.domain.AppUser;
 import com.ddorong.ddorong_bot_be.domain.UserChannel;
+import com.ddorong.ddorong_bot_be.domain.UserDeliverySchedule;
 import com.ddorong.ddorong_bot_be.domain.UserInterest;
 import com.ddorong.ddorong_bot_be.domain.UserPreference;
 import com.ddorong.ddorong_bot_be.domain.repo.AppUserRepository;
 import com.ddorong.ddorong_bot_be.domain.repo.UserChannelRepository;
+import com.ddorong.ddorong_bot_be.domain.repo.UserDeliveryScheduleRepository;
 import com.ddorong.ddorong_bot_be.domain.repo.UserInterestRepository;
 import com.ddorong.ddorong_bot_be.domain.repo.UserPreferenceRepository;
 import com.ddorong.ddorong_bot_be.settings.dto.AddChannelRequest;
@@ -28,10 +34,12 @@ import com.ddorong.ddorong_bot_be.settings.dto.ChannelDto;
 import com.ddorong.ddorong_bot_be.settings.dto.ChannelUpdate;
 import com.ddorong.ddorong_bot_be.settings.dto.InterestDto;
 import com.ddorong.ddorong_bot_be.settings.dto.PreferenceDto;
+import com.ddorong.ddorong_bot_be.settings.dto.ScheduleDto;
 import com.ddorong.ddorong_bot_be.settings.dto.TestMessageResponse;
 import com.ddorong.ddorong_bot_be.settings.dto.UpdateChannelsRequest;
 import com.ddorong.ddorong_bot_be.settings.dto.UpdateInterestsRequest;
 import com.ddorong.ddorong_bot_be.settings.dto.UpdatePreferencesRequest;
+import com.ddorong.ddorong_bot_be.settings.dto.UpdateScheduleRequest;
 import com.ddorong.ddorong_bot_be.settings.dto.UserListResponse;
 import com.ddorong.ddorong_bot_be.settings.dto.UserSettingsResponse;
 import com.ddorong.ddorong_bot_be.settings.dto.UserSummary;
@@ -46,18 +54,21 @@ public class UserSettingsService {
     private final UserPreferenceRepository preferenceRepository;
     private final UserInterestRepository interestRepository;
     private final UserChannelRepository channelRepository;
+    private final UserDeliveryScheduleRepository scheduleRepository;
     private final RestTemplate restTemplate;
 
     public UserSettingsService(
             AppUserRepository userRepository,
             UserPreferenceRepository preferenceRepository,
             UserInterestRepository interestRepository,
-            UserChannelRepository channelRepository
+            UserChannelRepository channelRepository,
+            UserDeliveryScheduleRepository scheduleRepository
     ) {
         this.userRepository = userRepository;
         this.preferenceRepository = preferenceRepository;
         this.interestRepository = interestRepository;
         this.channelRepository = channelRepository;
+        this.scheduleRepository = scheduleRepository;
         this.restTemplate = new RestTemplate();
     }
 
@@ -111,6 +122,17 @@ public class UserSettingsService {
                 ? new PreferenceDto(pref.getLanguageTarget(), pref.getDigestSize())
                 : new PreferenceDto("ko", 10);
 
+        // 스케줄 조회
+        ScheduleDto schedule = scheduleRepository.findByUserId(user.getId())
+                .map(s -> new ScheduleDto(
+                        s.getId(),
+                        s.getCronExpr(),
+                        ScheduleDto.cronToTime(s.getCronExpr()),
+                        s.getNextRunAt(),
+                        s.getIsEnabled()
+                ))
+                .orElse(null);
+
         return new UserSettingsResponse(
                 user.getId(),
                 user.getCode(),
@@ -118,8 +140,70 @@ public class UserSettingsService {
                 user.getTimezone(),
                 preference,
                 interests,
-                channels
+                channels,
+                schedule
         );
+    }
+
+    /**
+     * 스케줄 업데이트
+     */
+    @Transactional
+    public ScheduleDto updateSchedule(String userCode, UpdateScheduleRequest request) {
+        AppUser user = userRepository.findByCode(userCode)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userCode));
+
+        UserDeliverySchedule schedule = scheduleRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    UserDeliverySchedule newSchedule = UserDeliverySchedule.create(user, "0 0 9 * * *");
+                    return scheduleRepository.save(newSchedule);
+                });
+
+        // 발송 시간 변경
+        if (request.deliveryTime() != null && !request.deliveryTime().isEmpty()) {
+            String newCron = ScheduleDto.timeToCron(request.deliveryTime());
+            schedule.setCronExpr(newCron);
+
+            // 다음 실행 시간 재계산
+            updateNextRunAt(schedule, user.getTimezone());
+        }
+
+        // 활성화 상태 변경
+        if (request.isEnabled() != null) {
+            schedule.setIsEnabled(request.isEnabled());
+        }
+
+        scheduleRepository.save(schedule);
+
+        String newTime = ScheduleDto.cronToTime(schedule.getCronExpr());
+        log.info("Schedule updated for user {}: time={}, enabled={}",
+                userCode, newTime, schedule.getIsEnabled());
+
+        return new ScheduleDto(
+                schedule.getId(),
+                schedule.getCronExpr(),
+                newTime,
+                schedule.getNextRunAt(),
+                schedule.getIsEnabled()
+        );
+    }
+
+    /**
+     * 다음 실행 시간 계산
+     */
+    private void updateNextRunAt(UserDeliverySchedule schedule, String timezone) {
+        try {
+            CronExpression cron = CronExpression.parse(schedule.getCronExpr());
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of(timezone != null ? timezone : "Asia/Seoul"));
+            ZonedDateTime next = cron.next(now);
+
+            if (next != null) {
+                schedule.setNextRunAt(next.toOffsetDateTime());
+                log.debug("Next run calculated: {}", next);
+            }
+        } catch (Exception e) {
+            log.error("Failed to calculate next run time: {}", e.getMessage());
+        }
     }
 
     /**
@@ -244,7 +328,6 @@ public class UserSettingsService {
                     sendDiscordMessage(channel.getDestination(), testMessage);
                     break;
                 case "EMAIL":
-                    // 이메일은 별도 구현 필요 (SMTP 설정)
                     return new TestMessageResponse(false, "이메일 전송은 아직 구현되지 않았습니다.");
                 default:
                     return new TestMessageResponse(false, "지원하지 않는 채널 타입: " + channel.getChannelType());
@@ -271,7 +354,7 @@ public class UserSettingsService {
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
         restTemplate.postForEntity(webhookUrl, request, String.class);
-        
+
         log.info("Slack message sent to webhook");
     }
 
@@ -287,7 +370,7 @@ public class UserSettingsService {
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
         restTemplate.postForEntity(webhookUrl, request, String.class);
-        
+
         log.info("Discord message sent to webhook");
     }
 
