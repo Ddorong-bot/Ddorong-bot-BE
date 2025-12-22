@@ -1,13 +1,30 @@
 {
-  "articles": [{
-    "categoryCode": "science",
-    "sourceName": "Nature",
-    "sourceType": "RSS",
-    "url": "https://example.com/quantum-test-001",
-    "title": "Quantum Computing Breakthrough Achieved",
-    "content": "Scientists have achieved a major breakthrough in quantum computing technology. The new quantum processor demonstrates unprecedented stability and error correction capabilities.",
-    "author": "Dr. Alice Wang",
-    "publishedAt": "2025-12-22T10:00:00+09:00",
-    "contentHash": "quantum123456789abcdefquantum123456789abcdefquantum123456789abcdef"
-  }]
+  "articles": [
+    {
+      "sourceType": "RSS",
+      "contentHash": "3333333333333333333333333333333333333333333333333333333333333333",
+      "externalId": "nature-20251222-0001",
+      "sourceName": "Nature",
+      "categoryCode": "science",
+      "url": "https://example.com/nature/quantum-computing-2025",
+      "title": "Quantum Computing Breakthrough: 1000-Qubit Processor Achieved",
+      "content": "Scientists have achieved a major breakthrough in quantum computing technology. The new quantum processor demonstrates unprecedented stability and error correction capabilities, marking a significant leap toward practical quantum computing applications.",
+      "author": "Dr. Alice Wang",
+      "publishedAt": "2025-12-22T10:00:00+09:00",
+      "fetchedAt": "2025-12-22T10:05:00+09:00"
+    },
+    {
+      "sourceType": "API",
+      "contentHash": "4444444444444444444444444444444444444444444444444444444444444444",
+      "externalId": "sciencedaily-20251222-0001",
+      "sourceName": "ScienceDaily",
+      "categoryCode": "science",
+      "url": "https://example.com/sciencedaily/quantum-entanglement",
+      "title": "New Discovery in Quantum Entanglement Could Revolutionize Communication",
+      "content": "Researchers have discovered a new method to maintain quantum entanglement over longer distances. This breakthrough could enable ultra-secure quantum communication networks and advance quantum internet technology.",
+      "author": "Dr. Michael Zhang",
+      "publishedAt": "2025-12-22T08:30:00+09:00",
+      "fetchedAt": "2025-12-22T08:35:00+09:00"
+    }
+  ]
 }
