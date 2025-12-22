@@ -1,9 +1,10 @@
 -- Categories
 INSERT INTO news_category(code, display_name) VALUES
-  ('world', 'World'),
   ('tech', 'Technology'),
-  ('business', 'Business'),
-  ('science', 'Science')
+  ('science', 'Science'),
+  ('politics', 'Politics'), 
+  ('economy', 'Economy'), 
+  ('others', 'Others')
 ON CONFLICT (code) DO NOTHING;
 
 -- Sources (example)

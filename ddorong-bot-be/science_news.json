@@ -1,0 +1,13 @@
+{
+  "articles": [{
+    "categoryCode": "science",
+    "sourceName": "Nature",
+    "sourceType": "RSS",
+    "url": "https://example.com/quantum-test-001",
+    "title": "Quantum Computing Breakthrough Achieved",
+    "content": "Scientists have achieved a major breakthrough in quantum computing technology. The new quantum processor demonstrates unprecedented stability and error correction capabilities.",
+    "author": "Dr. Alice Wang",
+    "publishedAt": "2025-12-22T10:00:00+09:00",
+    "contentHash": "quantum123456789abcdefquantum123456789abcdefquantum123456789abcdef"
+  }]
+}
