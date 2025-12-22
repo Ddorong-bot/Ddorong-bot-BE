@@ -37,6 +37,17 @@ services:
     networks:
       - ddorong-net
 
+  frontend:
+    image: jiyeonl/ddorong-bot-fe:latest
+    container_name: ddorong-fe
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+    networks:
+      - ddorong-net
+    restart: unless-stopped
+
 volumes:
   postgres-data:
 
